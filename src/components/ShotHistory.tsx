@@ -1,3 +1,4 @@
+import { BestShotToggle } from "@/components/BestShotToggle";
 import type { DialInLog } from "@/lib/types";
 
 /* Angular panel: hard corner cut top-right, Night City data-plate style. */
@@ -13,7 +14,13 @@ function formatShotDate(iso: string) {
   )}:${pad(d.getMinutes())}`;
 }
 
-export function ShotHistory({ logs }: { logs: DialInLog[] }) {
+export function ShotHistory({
+  logs,
+  onBestToggled = () => {},
+}: {
+  logs: DialInLog[];
+  onBestToggled?: (log: DialInLog) => void;
+}) {
   if (logs.length === 0) {
     return (
       <div className="border border-dashed border-border px-4 py-12 text-center">
@@ -31,26 +38,55 @@ export function ShotHistory({ logs }: { logs: DialInLog[] }) {
   const ordered = [...logs].sort(
     (a, b) => Date.parse(b.logged_at) - Date.parse(a.logged_at),
   );
+  // The flagged reference is pinned above the list and never repeated in it.
+  // Rendering only the first flagged row keeps the one-best invariant on
+  // screen even if the data ever carried a duplicate flag.
+  const best = ordered.find((l) => l.is_best);
+  const rest = best ? ordered.filter((l) => l.id !== best.id) : ordered;
 
   return (
-    <ul className="space-y-3">
-      {ordered.map((log) => (
-        <ShotItem key={log.id} log={log} />
-      ))}
-    </ul>
+    <div className="space-y-5">
+      {best && (
+        <section aria-label="Best dial-in" className="space-y-2">
+          <p className="flex items-center gap-2 font-glitch text-[10px] uppercase tracking-[0.3em] text-brand">
+            <span aria-hidden>▶</span>
+            best dial-in
+            <span aria-hidden className="h-px flex-1 bg-brand/40" />
+          </p>
+          <ul>
+            <ShotItem log={best} isBest onToggled={onBestToggled} />
+          </ul>
+        </section>
+      )}
+      {rest.length > 0 && (
+        <ul className="space-y-3">
+          {rest.map((log) => (
+            <ShotItem key={log.id} log={log} isBest={false} onToggled={onBestToggled} />
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 
-function ShotItem({ log }: { log: DialInLog }) {
+function ShotItem({
+  log,
+  isBest,
+  onToggled,
+}: {
+  log: DialInLog;
+  isBest: boolean;
+  onToggled: (log: DialInLog) => void;
+}) {
   return (
     <li
       className={`animate-glitch relative border bg-surface p-4 ${PANEL_CLIP} ${
-        log.is_best ? "glow-brand border-brand/70" : "border-border"
+        isBest ? "best-shot glow-brand border-brand/70" : "border-border"
       }`}
     >
       <span
         aria-hidden
-        className={`absolute inset-y-0 left-0 w-0.5 ${log.is_best ? "bg-brand" : "bg-neon-cyan"}`}
+        className={`absolute inset-y-0 left-0 w-0.5 ${isBest ? "bg-brand" : "bg-neon-cyan"}`}
       />
       <div className="pl-2">
         <div className="flex items-start justify-between gap-3">
@@ -74,11 +110,7 @@ function ShotItem({ log }: { log: DialInLog }) {
               </dd>
             </div>
           </dl>
-          {log.is_best && (
-            <span className="shrink-0 border border-brand px-2 py-1 font-glitch text-[10px] uppercase tracking-[0.25em] text-brand">
-              ★ best
-            </span>
-          )}
+          <BestShotToggle log={log} isBest={isBest} onToggled={onToggled} />
         </div>
 
         <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs uppercase text-muted">

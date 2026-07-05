@@ -1,0 +1,266 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ShotHistory best-shot pinning > pins the best shot above the chronological list without repeating it 1`] = `
+<div
+  class="space-y-5"
+>
+  <section
+    aria-label="Best dial-in"
+    class="space-y-2"
+  >
+    <p
+      class="flex items-center gap-2 font-glitch text-[10px] uppercase tracking-[0.3em] text-brand"
+    >
+      <span
+        aria-hidden="true"
+      >
+        ▶
+      </span>
+      best dial-in
+      <span
+        aria-hidden="true"
+        class="h-px flex-1 bg-brand/40"
+      />
+    </p>
+    <ul>
+      <li
+        class="animate-glitch relative border bg-surface p-4 [clip-path:polygon(0_0,calc(100%-14px)_0,100%_14px,100%_100%,0_100%)] best-shot glow-brand border-brand/70"
+      >
+        <span
+          aria-hidden="true"
+          class="absolute inset-y-0 left-0 w-0.5 bg-brand"
+        />
+        <div
+          class="pl-2"
+        >
+          <div
+            class="flex items-start justify-between gap-3"
+          >
+            <dl
+              class="flex gap-6"
+              data-readout="true"
+            >
+              <div>
+                <dt
+                  class="font-glitch text-[10px] uppercase tracking-[0.3em] text-muted"
+                >
+                  Grind
+                </dt>
+                <dd
+                  class="mt-0.5 font-glitch text-3xl leading-none text-brand"
+                >
+                  16
+                </dd>
+              </div>
+              <div>
+                <dt
+                  class="font-glitch text-[10px] uppercase tracking-[0.3em] text-muted"
+                >
+                  Time
+                </dt>
+                <dd
+                  class="mt-0.5 font-glitch text-3xl leading-none text-brand"
+                >
+                  31
+                  <span
+                    class="ml-0.5 text-sm text-muted"
+                  >
+                    s
+                  </span>
+                </dd>
+              </div>
+            </dl>
+            <div
+              class="flex shrink-0 flex-col items-end gap-1"
+            >
+              <button
+                aria-label="Unflag best shot"
+                aria-pressed="true"
+                class="min-h-11 border px-3 font-glitch text-[10px] uppercase tracking-[0.25em] transition disabled:opacity-50 glow-brand border-brand bg-brand/10 text-brand"
+                type="button"
+              >
+                ★ best
+              </button>
+            </div>
+          </div>
+          <p
+            class="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs uppercase text-muted"
+          >
+            <span
+              class="text-neon-cyan"
+            >
+              double
+            </span>
+            <time
+              datetime="2026-07-02T09:15:00.000Z"
+            >
+              2026-07-02 09:15
+            </time>
+          </p>
+          <p
+            class="mt-2 border-t border-border/60 pt-2 text-sm text-foreground"
+          >
+            balanced — repeat this
+          </p>
+        </div>
+      </li>
+    </ul>
+  </section>
+  <ul
+    class="space-y-3"
+  >
+    <li
+      class="animate-glitch relative border bg-surface p-4 [clip-path:polygon(0_0,calc(100%-14px)_0,100%_14px,100%_100%,0_100%)] border-border"
+    >
+      <span
+        aria-hidden="true"
+        class="absolute inset-y-0 left-0 w-0.5 bg-neon-cyan"
+      />
+      <div
+        class="pl-2"
+      >
+        <div
+          class="flex items-start justify-between gap-3"
+        >
+          <dl
+            class="flex gap-6"
+            data-readout="true"
+          >
+            <div>
+              <dt
+                class="font-glitch text-[10px] uppercase tracking-[0.3em] text-muted"
+              >
+                Grind
+              </dt>
+              <dd
+                class="mt-0.5 font-glitch text-3xl leading-none text-brand"
+              >
+                14
+              </dd>
+            </div>
+            <div>
+              <dt
+                class="font-glitch text-[10px] uppercase tracking-[0.3em] text-muted"
+              >
+                Time
+              </dt>
+              <dd
+                class="mt-0.5 font-glitch text-3xl leading-none text-brand"
+              >
+                27
+                <span
+                  class="ml-0.5 text-sm text-muted"
+                >
+                  s
+                </span>
+              </dd>
+            </div>
+          </dl>
+          <div
+            class="flex shrink-0 flex-col items-end gap-1"
+          >
+            <button
+              aria-label="Flag as best shot"
+              aria-pressed="false"
+              class="min-h-11 border px-3 font-glitch text-[10px] uppercase tracking-[0.25em] transition disabled:opacity-50 border-border text-muted hover:border-brand hover:text-brand"
+              type="button"
+            >
+              ☆ best
+            </button>
+          </div>
+        </div>
+        <p
+          class="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs uppercase text-muted"
+        >
+          <span
+            class="text-neon-cyan"
+          >
+            double
+          </span>
+          <time
+            datetime="2026-07-04T07:30:00.000Z"
+          >
+            2026-07-04 07:30
+          </time>
+        </p>
+      </div>
+    </li>
+    <li
+      class="animate-glitch relative border bg-surface p-4 [clip-path:polygon(0_0,calc(100%-14px)_0,100%_14px,100%_100%,0_100%)] border-border"
+    >
+      <span
+        aria-hidden="true"
+        class="absolute inset-y-0 left-0 w-0.5 bg-neon-cyan"
+      />
+      <div
+        class="pl-2"
+      >
+        <div
+          class="flex items-start justify-between gap-3"
+        >
+          <dl
+            class="flex gap-6"
+            data-readout="true"
+          >
+            <div>
+              <dt
+                class="font-glitch text-[10px] uppercase tracking-[0.3em] text-muted"
+              >
+                Grind
+              </dt>
+              <dd
+                class="mt-0.5 font-glitch text-3xl leading-none text-brand"
+              >
+                12
+              </dd>
+            </div>
+            <div>
+              <dt
+                class="font-glitch text-[10px] uppercase tracking-[0.3em] text-muted"
+              >
+                Time
+              </dt>
+              <dd
+                class="mt-0.5 font-glitch text-3xl leading-none text-brand"
+              >
+                24
+                <span
+                  class="ml-0.5 text-sm text-muted"
+                >
+                  s
+                </span>
+              </dd>
+            </div>
+          </dl>
+          <div
+            class="flex shrink-0 flex-col items-end gap-1"
+          >
+            <button
+              aria-label="Flag as best shot"
+              aria-pressed="false"
+              class="min-h-11 border px-3 font-glitch text-[10px] uppercase tracking-[0.25em] transition disabled:opacity-50 border-border text-muted hover:border-brand hover:text-brand"
+              type="button"
+            >
+              ☆ best
+            </button>
+          </div>
+        </div>
+        <p
+          class="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs uppercase text-muted"
+        >
+          <span
+            class="text-neon-cyan"
+          >
+            single
+          </span>
+          <time
+            datetime="2026-07-01T08:00:00.000Z"
+          >
+            2026-07-01 08:00
+          </time>
+        </p>
+      </div>
+    </li>
+  </ul>
+</div>
+`;

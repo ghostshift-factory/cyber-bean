@@ -83,15 +83,18 @@ describe("ShotHistory", () => {
     expect(screen.getByText("balanced — repeat this")).toBeTruthy();
     const time = screen.getByRole("listitem").querySelector("time");
     expect(time?.getAttribute("datetime")).toBe("2026-07-04T07:30:00.000Z");
-    // Best shot is flagged.
-    expect(screen.getByText(/best/i)).toBeTruthy();
+    // Best shot is flagged: pressed toggle, pinned reference panel.
+    expect(screen.getByRole("button", { name: /unflag best shot/i })).toBeTruthy();
+    expect(document.querySelectorAll(".best-shot")).toHaveLength(1);
   });
 
   it("omits notes when absent", () => {
     render(<ShotHistory logs={[LOGS[0]]} />);
 
     expect(screen.getByText(/single/i)).toBeTruthy();
-    expect(screen.queryByText(/best/i)).toBeNull();
+    // Unflagged entry: toggle offers to flag, nothing is pinned.
+    expect(screen.getByRole("button", { name: /flag as best shot/i })).toBeTruthy();
+    expect(document.querySelector(".best-shot")).toBeNull();
   });
 
   it("shows a terse empty state when there are no logs", () => {
