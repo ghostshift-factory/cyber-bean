@@ -10,9 +10,7 @@ import { DELETE } from "../src/app/api/beans/[id]/route";
 const BEAN = {
   id: "8f14e45f-ea0a-4e64-9c08-4f2f5c9a1b2d",
   brand: "Single O",
-  name: "Reservoir",
-  roast_level: "medium",
-  origin: "Ethiopia",
+  bean_type: "Reservoir",
   created_at: "2026-07-01T09:00:00.000Z",
 };
 
@@ -49,29 +47,22 @@ describe("POST /api/beans", () => {
     query.mockResolvedValueOnce({ rows: [BEAN], rowCount: 1 });
 
     const res = await POST(
-      postRequest({
-        brand: "Single O",
-        name: "Reservoir",
-        roast_level: "medium",
-        origin: "Ethiopia",
-      }),
+      postRequest({ brand: "Single O", bean_type: "Reservoir" }),
     );
 
     expect(res.status).toBe(201);
     expect(await res.json()).toEqual({ bean: BEAN });
     const [sql, params] = query.mock.calls[0];
     expect(sql).toMatch(/insert into beans/i);
-    expect(params).toEqual(["Single O", "Reservoir", "medium", "Ethiopia"]);
+    expect(params).toEqual(["Single O", "Reservoir"]);
   });
 
-  it.each(["brand", "name", "roast_level", "origin"])(
+  it.each(["brand", "bean_type"])(
     "rejects a body missing %s with 400",
     async (field) => {
       const body: Record<string, string> = {
         brand: "Single O",
-        name: "Reservoir",
-        roast_level: "medium",
-        origin: "Ethiopia",
+        bean_type: "Reservoir",
       };
       delete body[field];
 
@@ -84,9 +75,7 @@ describe("POST /api/beans", () => {
   );
 
   it("rejects blank-string fields with 400", async () => {
-    const res = await POST(
-      postRequest({ brand: "  ", name: "Reservoir", roast_level: "medium", origin: "Ethiopia" }),
-    );
+    const res = await POST(postRequest({ brand: "  ", bean_type: "Reservoir" }));
 
     expect(res.status).toBe(400);
     expect(query).not.toHaveBeenCalled();
