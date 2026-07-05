@@ -13,7 +13,7 @@ export default defineConfig({
   // CI provides DATABASE_URL via the workflow's postgres service.
   // exclude: e2e/browser/network tests live under e2e/ and run in staging-verify, never the gate.
   test: {
-    include: ["test/**/*.test.ts"],
+    include: ["test/**/*.test.{ts,tsx}"],
     exclude: ["e2e/**", "**/*.spec.ts"],
     setupFiles: ["dotenv/config"],
   },
