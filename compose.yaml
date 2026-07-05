@@ -1,0 +1,19 @@
+# Deployed by the Ship station to /opt/products/cyber-bean/repo on the VPS.
+# Ship pre-creates the product network and attaches shared-postgres to it,
+# writes ../.env (DATABASE_URL, VIRTUAL_HOST, LETSENCRYPT_HOST, VIRTUAL_PORT, GIT_SHA),
+# then runs: docker compose -p cyber-bean up -d --build
+name: cyber-bean
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    networks: [default, proxy]
+networks:
+  default:
+    external: true
+    name: cyber-bean_net
+  proxy:
+    external: true
+    name: nginx-proxy

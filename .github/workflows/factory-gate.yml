@@ -1,0 +1,38 @@
+# The factory's deterministic gate for this product. The required check is the job id: gate.
+name: factory-gate
+on:
+  pull_request:
+  merge_group:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    # Backstop: the gate is hermetic (typecheck + unit + build). If a step hangs — a stray
+    # network call, browser, or dev-server that never belongs here — fail red fast instead of
+    # parking the ticket for ~50 min. 15 min covers typecheck+unit+build with the postgres service.
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run migrate
+      - run: pnpm gate
