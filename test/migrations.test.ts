@@ -3,8 +3,10 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 // Hermetic schema check: parses the migration SQL text, no database required.
+// 0003 rebuilds both tables to the dial-in spec, so it is the authoritative
+// definition of the schema the app runs against.
 const sql = readFileSync(
-  join(__dirname, "..", "migrations", "0002_beans_and_dial_in_logs.sql"),
+  join(__dirname, "..", "migrations", "0003_rebuild_beans_and_dial_in_logs.sql"),
   "utf8",
 ).toLowerCase();
 
@@ -14,16 +16,14 @@ function tableBody(table: string): string {
   return m[1];
 }
 
-describe("migration 0002_beans_and_dial_in_logs", () => {
+describe("migration 0003_rebuild_beans_and_dial_in_logs", () => {
   const beans = tableBody("beans");
   const logs = tableBody("dial_in_logs");
 
-  it("defines beans with id, brand, name, roast_level, origin, created_at", () => {
+  it("defines beans with id, brand, bean_type, created_at", () => {
     expect(beans).toMatch(/\bid uuid primary key/);
     expect(beans).toMatch(/\bbrand text not null\b/);
-    expect(beans).toMatch(/\bname text not null\b/);
-    expect(beans).toMatch(/\broast_level text not null\b/);
-    expect(beans).toMatch(/\borigin text not null\b/);
+    expect(beans).toMatch(/\bbean_type text not null\b/);
     expect(beans).toMatch(/\bcreated_at timestamptz not null default now\(\)/);
   });
 
@@ -34,11 +34,19 @@ describe("migration 0002_beans_and_dial_in_logs", () => {
 
   it("defines shot measurement columns with correct types", () => {
     expect(logs).toMatch(/\bgrind_size numeric not null\b/);
-    expect(logs).toMatch(/\bextraction_seconds numeric not null\b/);
+    expect(logs).toMatch(/\bdose_in_g numeric not null\b/);
+    expect(logs).toMatch(/\byield_out_g numeric not null\b/);
+    expect(logs).toMatch(/\bextraction_seconds integer not null\b/);
     expect(logs).toMatch(/\bbasket_type text not null\b/);
   });
 
-  it("defines notes as nullable text", () => {
+  it("defines taste_rating as SMALLINT", () => {
+    expect(logs).toMatch(/\btaste_rating smallint not null\b/);
+  });
+
+  it("defines taste_balance and notes as nullable text", () => {
+    expect(logs).toMatch(/\btaste_balance text\b/);
+    expect(logs).not.toMatch(/\btaste_balance text not null\b/);
     expect(logs).toMatch(/\bnotes text\b/);
     expect(logs).not.toMatch(/\bnotes text not null\b/);
   });
