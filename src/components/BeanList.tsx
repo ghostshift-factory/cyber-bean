@@ -60,7 +60,18 @@ function BeanItem({
           <p className="truncate font-glitch text-[11px] uppercase tracking-[0.25em] text-neon-cyan">
             {bean.brand}
           </p>
-          <h3 className="mt-0.5 truncate text-lg text-foreground">{bean.name}</h3>
+          <h3 className="mt-0.5 truncate text-lg text-foreground">
+            {/* Whole title is the tap target into the shot log — big-tap, mid-brew. */}
+            <a
+              href={`/beans/${bean.id}`}
+              className="transition hover:text-brand focus-visible:text-brand"
+            >
+              {bean.name}
+              <span aria-hidden className="ml-2 font-glitch text-xs text-brand">
+                &gt;&gt;
+              </span>
+            </a>
+          </h3>
           <dl className="mt-2 flex gap-5 font-mono text-xs uppercase">
             <div>
               <dt className="text-muted">Roast</dt>
