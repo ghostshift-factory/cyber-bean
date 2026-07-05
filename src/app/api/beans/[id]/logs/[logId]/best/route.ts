@@ -6,7 +6,8 @@ export const dynamic = "force-dynamic";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const LOG_COLUMNS =
-  "id, bean_id, grind_size, extraction_seconds, basket_type, notes, is_best, logged_at";
+  "id, bean_id, grind_size, dose_in_g, yield_out_g, extraction_seconds, basket_type, " +
+  "taste_rating, taste_balance, notes, is_best, logged_at";
 
 type RouteContext = { params: Promise<{ id: string; logId: string }> };
 

@@ -12,8 +12,12 @@ const LOG = {
   id: "1c9a7e2b-5d34-4b7a-9e1f-0a2b3c4d5e6f",
   bean_id: BEAN_ID,
   grind_size: 12,
+  dose_in_g: 18,
+  yield_out_g: 36,
   extraction_seconds: 28,
   basket_type: "double",
+  taste_rating: 4,
+  taste_balance: "balanced",
   notes: "balanced, slight caramel",
   is_best: false,
   logged_at: "2026-07-04T08:30:00.000Z",
@@ -21,8 +25,11 @@ const LOG = {
 
 const VALID_BODY = {
   grind_size: 12,
+  dose_in_g: 18,
+  yield_out_g: 36,
   extraction_seconds: 28,
   basket_type: "double",
+  taste_rating: 4,
   logged_at: "2026-07-04T08:30:00.000Z",
 };
 
@@ -74,7 +81,11 @@ describe("POST /api/beans/[id]/logs", () => {
     query.mockResolvedValueOnce({ rows: [LOG], rowCount: 1 });
 
     const res = await POST(
-      postRequest(BEAN_ID, { ...VALID_BODY, notes: "balanced, slight caramel" }),
+      postRequest(BEAN_ID, {
+        ...VALID_BODY,
+        taste_balance: "balanced",
+        notes: "balanced, slight caramel",
+      }),
       ctx(BEAN_ID),
     );
 
@@ -85,25 +96,39 @@ describe("POST /api/beans/[id]/logs", () => {
     expect(params).toEqual([
       BEAN_ID,
       12,
+      18,
+      36,
       28,
       "double",
-      "2026-07-04T08:30:00.000Z",
+      4,
+      "balanced",
       "balanced, slight caramel",
+      "2026-07-04T08:30:00.000Z",
     ]);
   });
 
-  it("accepts a log without notes", async () => {
-    const noNotes = { ...LOG, notes: null };
-    query.mockResolvedValueOnce({ rows: [noNotes], rowCount: 1 });
+  it("accepts a log without taste_balance and notes", async () => {
+    const bare = { ...LOG, taste_balance: null, notes: null };
+    query.mockResolvedValueOnce({ rows: [bare], rowCount: 1 });
 
     const res = await POST(postRequest(BEAN_ID, VALID_BODY), ctx(BEAN_ID));
 
     expect(res.status).toBe(201);
-    expect(await res.json()).toEqual({ log: noNotes });
-    expect(query.mock.calls[0][1][5]).toBeNull();
+    expect(await res.json()).toEqual({ log: bare });
+    const params = query.mock.calls[0][1];
+    expect(params[7]).toBeNull(); // taste_balance
+    expect(params[8]).toBeNull(); // notes
   });
 
-  it.each(["grind_size", "extraction_seconds", "basket_type", "logged_at"])(
+  it.each([
+    "grind_size",
+    "dose_in_g",
+    "yield_out_g",
+    "extraction_seconds",
+    "basket_type",
+    "taste_rating",
+    "logged_at",
+  ])(
     "rejects a body missing %s with 400",
     async (field) => {
       const body: Record<string, unknown> = { ...VALID_BODY };
@@ -116,6 +141,17 @@ describe("POST /api/beans/[id]/logs", () => {
       expect(query).not.toHaveBeenCalled();
     },
   );
+
+  it.each([0, 6, 3.5, "4"])("rejects a taste_rating of %j with 400", async (rating) => {
+    const res = await POST(
+      postRequest(BEAN_ID, { ...VALID_BODY, taste_rating: rating }),
+      ctx(BEAN_ID),
+    );
+
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toContain("taste_rating");
+    expect(query).not.toHaveBeenCalled();
+  });
 
   it("rejects a non-numeric grind_size with 400", async () => {
     const res = await POST(
