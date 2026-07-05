@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { ShotTimer } from "@/components/ShotTimer";
 import type { DialInLog } from "@/lib/types";
 
 /* Sage/Breville portafilter baskets. */
@@ -149,6 +150,9 @@ export function LogShotForm({
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
+      {/* Stopping the timer pre-fills Time · s; typing in the field still wins. */}
+      <ShotTimer onStop={(elapsed) => setSeconds(String(elapsed))} />
+
       <div className="grid grid-cols-2 gap-4">
         <NumberField
           id="shot-grind"

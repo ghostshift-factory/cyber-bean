@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LogShotForm } from "@/components/LogShotForm";
 import type { DialInLog } from "@/lib/types";
@@ -33,6 +33,11 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+/* The embedded ShotTimer readout is also labelled "…time", so scope to the input. */
+function timeInput() {
+  return screen.getByLabelText<HTMLInputElement>(/time/i, { selector: "input" });
+}
+
 const FILL: Record<string, () => void> = {
   grind_size: () =>
     fireEvent.change(screen.getByLabelText(/grind/i), { target: { value: "16" } }),
@@ -41,7 +46,7 @@ const FILL: Record<string, () => void> = {
   yield_out_g: () =>
     fireEvent.change(screen.getByLabelText(/yield/i), { target: { value: "38" } }),
   extraction_seconds: () =>
-    fireEvent.change(screen.getByLabelText(/time/i), { target: { value: "31" } }),
+    fireEvent.change(timeInput(), { target: { value: "31" } }),
   basket_type: () => fireEvent.click(screen.getByRole("radio", { name: /double/i })),
   taste_rating: () => fireEvent.click(screen.getByRole("radio", { name: /4 stars/i })),
   logged_at: () =>
@@ -128,6 +133,59 @@ describe("LogShotForm", () => {
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(body).not.toHaveProperty("notes");
     expect(body).not.toHaveProperty("taste_balance");
+  });
+
+  describe("shot timer wiring", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    function runTimer(ms: number) {
+      fireEvent.click(screen.getByRole("button", { name: /start/i }));
+      act(() => vi.advanceTimersByTime(ms));
+      fireEvent.click(screen.getByRole("button", { name: /stop/i }));
+    }
+
+    it("auto-fills the time field with the elapsed whole seconds on stop", () => {
+      render(<LogShotForm beanId={BEAN_ID} onLogged={() => {}} />);
+
+      runTimer(31_400);
+
+      expect(timeInput().value).toBe("31");
+    });
+
+    it("lets a manual keystroke override the auto-filled value", () => {
+      render(<LogShotForm beanId={BEAN_ID} onLogged={() => {}} />);
+
+      runTimer(31_400);
+      fireEvent.change(timeInput(), { target: { value: "27" } });
+
+      expect(timeInput().value).toBe("27");
+    });
+
+    it("submits the field contents at submit time, not the raw timer value", async () => {
+      fetchMock.mockResolvedValueOnce(
+        new Response(JSON.stringify({ log: CREATED }), { status: 201 }),
+      );
+      const onLogged = vi.fn();
+      render(<LogShotForm beanId={BEAN_ID} onLogged={onLogged} />);
+
+      fillValidForm("extraction_seconds");
+      runTimer(31_400);
+      fireEvent.change(timeInput(), { target: { value: "27" } });
+
+      // The stopwatch is stopped; waitFor needs real timers to poll.
+      vi.useRealTimers();
+      submit();
+
+      await waitFor(() => expect(onLogged).toHaveBeenCalled());
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+      expect(body.extraction_seconds).toBe(27);
+    });
   });
 
   it("surfaces an API error instead of calling onLogged", async () => {
