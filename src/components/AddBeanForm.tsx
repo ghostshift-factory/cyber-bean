@@ -3,13 +3,9 @@
 import { useState, type FormEvent } from "react";
 import type { Bean } from "@/lib/types";
 
-const ROAST_LEVELS = ["light", "medium", "dark"] as const;
-
 const FIELD_LABELS = {
   brand: "Brand",
-  name: "Name",
-  roast_level: "Roast",
-  origin: "Origin",
+  bean_type: "Bean type",
 } as const;
 
 const INPUT_CLASS =
@@ -21,9 +17,7 @@ const LABEL_CLASS =
 
 export function AddBeanForm({ onAdded }: { onAdded: (bean: Bean) => void }) {
   const [brand, setBrand] = useState("");
-  const [name, setName] = useState("");
-  const [roastLevel, setRoastLevel] = useState("");
-  const [origin, setOrigin] = useState("");
+  const [beanType, setBeanType] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -31,9 +25,7 @@ export function AddBeanForm({ onAdded }: { onAdded: (bean: Bean) => void }) {
     e.preventDefault();
     const values = {
       brand: brand.trim(),
-      name: name.trim(),
-      roast_level: roastLevel,
-      origin: origin.trim(),
+      bean_type: beanType.trim(),
     };
     const missing = (Object.keys(values) as (keyof typeof values)[]).filter(
       (f) => values[f] === "",
@@ -61,9 +53,7 @@ export function AddBeanForm({ onAdded }: { onAdded: (bean: Bean) => void }) {
       const { bean } = (await res.json()) as { bean: Bean };
       onAdded(bean);
       setBrand("");
-      setName("");
-      setRoastLevel("");
-      setOrigin("");
+      setBeanType("");
     } catch {
       setError("link down — retry");
     } finally {
@@ -89,55 +79,19 @@ export function AddBeanForm({ onAdded }: { onAdded: (bean: Bean) => void }) {
           />
         </div>
         <div>
-          <label htmlFor="bean-name" className={LABEL_CLASS}>
-            Name
+          <label htmlFor="bean-type" className={LABEL_CLASS}>
+            Bean type
           </label>
           <input
-            id="bean-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            id="bean-type"
+            value={beanType}
+            onChange={(e) => setBeanType(e.target.value)}
             placeholder="Reservoir"
             autoComplete="off"
             aria-required
             className={INPUT_CLASS}
           />
         </div>
-      </div>
-
-      <fieldset>
-        <legend className={LABEL_CLASS}>Roast level</legend>
-        <div className="mt-1 grid grid-cols-3 gap-2">
-          {ROAST_LEVELS.map((level) => (
-            <label key={level}>
-              <input
-                type="radio"
-                name="roast_level"
-                value={level}
-                checked={roastLevel === level}
-                onChange={() => setRoastLevel(level)}
-                className="peer sr-only"
-              />
-              <span className="block cursor-pointer border border-border px-2 py-3 text-center font-glitch text-xs uppercase tracking-widest text-muted transition peer-checked:border-brand peer-checked:bg-brand peer-checked:text-brand-foreground peer-focus-visible:border-neon-cyan">
-                {level}
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
-      <div>
-        <label htmlFor="bean-origin" className={LABEL_CLASS}>
-          Origin
-        </label>
-        <input
-          id="bean-origin"
-          value={origin}
-          onChange={(e) => setOrigin(e.target.value)}
-          placeholder="Ethiopia"
-          autoComplete="off"
-          aria-required
-          className={INPUT_CLASS}
-        />
       </div>
 
       {error && (

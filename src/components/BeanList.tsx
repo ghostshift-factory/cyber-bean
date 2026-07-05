@@ -66,27 +66,17 @@ function BeanItem({
               href={`/beans/${bean.id}`}
               className="transition hover:text-brand focus-visible:text-brand"
             >
-              {bean.name}
+              {bean.bean_type}
               <span aria-hidden className="ml-2 font-glitch text-xs text-brand">
                 &gt;&gt;
               </span>
             </a>
           </h3>
-          <dl className="mt-2 flex gap-5 font-mono text-xs uppercase">
-            <div>
-              <dt className="text-muted">Roast</dt>
-              <dd className="mt-0.5 text-foreground">{bean.roast_level}</dd>
-            </div>
-            <div className="min-w-0">
-              <dt className="text-muted">Origin</dt>
-              <dd className="mt-0.5 truncate text-foreground">{bean.origin}</dd>
-            </div>
-          </dl>
         </div>
         {armed ? (
           <button
             type="button"
-            aria-label={`Confirm delete ${bean.brand} ${bean.name}`}
+            aria-label={`Confirm delete ${bean.brand} ${bean.bean_type}`}
             onClick={() => onDelete(bean.id)}
             className="animate-glitch min-h-12 shrink-0 border border-neon-magenta bg-neon-magenta px-4 font-glitch text-xs uppercase tracking-widest text-bg"
           >
@@ -95,7 +85,7 @@ function BeanItem({
         ) : (
           <button
             type="button"
-            aria-label={`Delete ${bean.brand} ${bean.name}`}
+            aria-label={`Delete ${bean.brand} ${bean.bean_type}`}
             onClick={() => setArmed(true)}
             className="min-h-12 shrink-0 border border-border px-4 font-glitch text-xs uppercase tracking-widest text-muted transition hover:border-neon-magenta hover:text-neon-magenta"
           >
