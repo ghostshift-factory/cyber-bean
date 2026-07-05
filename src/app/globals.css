@@ -1,41 +1,40 @@
 @import "tailwindcss";
 
-/* ── Design tokens ──────────────────────────────────────────────────────────
-   Semantic, theme-aware variables. Build UI from THESE, not raw hex — a ticket
-   that swaps the palette here should re-skin the whole product. The dossier's
-   design/brand.md (if present) tells you which values to change; see CLAUDE.md. */
+/* ── cyber-bean design tokens ───────────────────────────────────────────────
+   Night City HUD: near-black base, high-voltage neon-yellow primary, electric
+   cyan / hot magenta secondaries, angular panels, subtle scan-lines.
+   DARK-ONLY by design — there is deliberately no prefers-color-scheme fork;
+   the root <html> carries class="dark" + data-theme="dark" (see layout.tsx).
+   Build UI from the semantic utilities (bg-bg, bg-surface, text-muted,
+   bg-brand, text-neon-cyan, font-glitch…), never raw hex. */
 :root {
-  --background: #ffffff;
-  --surface: #f8fafc;
-  --foreground: #0f172a;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --brand: #6366f1;
-  --brand-strong: #4f46e5;
-  --brand-foreground: #ffffff;
-  --accent: #ec4899;
+  color-scheme: dark;
+
+  --bg: #0a0a0c;
+  --surface: #131318;
+  --surface-raised: #1a1a22;
+  --foreground: #eceadf;
+  --muted: #8f8f9b;
+  --border: #2d2d38;
+
+  --neon-primary: #fcee0a;
+  --neon-cyan: #00f0ff;
+  --neon-magenta: #ff2a6d;
+
+  --brand: var(--neon-primary);
+  --brand-strong: #fff655;
+  --brand-foreground: #0a0a0c;
+  --accent: var(--neon-magenta);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b1120;
-    --surface: #111a2e;
-    --foreground: #e6edf7;
-    --muted: #94a3b8;
-    --border: #223049;
-    --brand: #818cf8;
-    --brand-strong: #a5b4fc;
-    --brand-foreground: #0b1120;
-    --accent: #f472b6;
-  }
-}
-
-/* Map the semantic tokens onto Tailwind utilities: bg-brand, text-muted,
-   border-border, etc. `inline` keeps them referencing the live CSS vars, so
-   dark mode flips automatically. */
+/* Map the semantic tokens onto Tailwind utilities: bg-bg, bg-brand,
+   text-muted, border-border, text-neon-cyan, font-glitch, etc. `inline`
+   keeps them referencing the live CSS vars. */
 @theme inline {
-  --color-background: var(--background);
+  --color-bg: var(--bg);
+  --color-background: var(--bg);
   --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
@@ -43,17 +42,110 @@
   --color-brand-strong: var(--brand-strong);
   --color-brand-foreground: var(--brand-foreground);
   --color-accent: var(--accent);
-  --radius-xl: 1rem;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  --color-neon-primary: var(--neon-primary);
+  --color-neon-cyan: var(--neon-cyan);
+  --color-neon-magenta: var(--neon-magenta);
+
+  /* Angular, not friendly-rounded: clip the template's radii hard. */
+  --radius-xl: 0.125rem;
+  --radius-lg: 0.125rem;
+
+  --font-sans: "Rajdhani", "Chakra Petch", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Techno display stack for headings and big dial-in numerics. */
+  --font-glitch: "Chakra Petch", "Orbitron", "Rajdhani", ui-monospace,
+    "Cascadia Mono", "JetBrains Mono", "Share Tech Mono", Consolas, monospace;
+  --font-mono: ui-monospace, "Cascadia Mono", "JetBrains Mono", Menlo,
+    Consolas, monospace;
 }
 
 @layer base {
+  html {
+    background: var(--bg);
+  }
+
   body {
-    background: var(--background);
+    background: var(--bg);
     color: var(--foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Big-tap, mid-brew usage: kill the grey tap flash, keep neon feedback. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-glitch);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Subtle CRT scan-lines over everything; purely decorative. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.025) 0,
+      rgb(255 255 255 / 0.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  }
+
+  ::selection {
+    background: var(--neon-primary);
+    color: var(--brand-foreground);
+  }
+}
+
+/* Glitch flicker for state changes — apply `animate-glitch` on mount/update. */
+@keyframes glitch {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  20% {
+    transform: translateX(-2px);
+    opacity: 0.55;
+  }
+  40% {
+    transform: translateX(2px);
+    opacity: 0.85;
+  }
+  60% {
+    transform: translateX(-1px) skewX(-2deg);
+    opacity: 0.65;
+  }
+  80% {
+    transform: translateX(1px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@utility animate-glitch {
+  animation: glitch 0.25s steps(2, jump-none) 1;
+}
+
+/* Neon edge glow for active/best-shot panels. */
+@utility glow-brand {
+  box-shadow:
+    0 0 6px color-mix(in oklab, var(--neon-primary) 55%, transparent),
+    inset 0 0 4px color-mix(in oklab, var(--neon-primary) 20%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-glitch {
+    animation: none;
   }
 }
