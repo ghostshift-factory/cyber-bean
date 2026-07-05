@@ -55,6 +55,14 @@ export function BeanShotLog({ beanId }: { beanId: string }) {
     setLogs((prev) => [log, ...(prev ?? [])]);
   }
 
+  function handleBestToggled(updated: DialInLog) {
+    // The PATCH route clears every sibling flag before setting the target;
+    // mirror that here so at most one entry stays flagged without a refetch.
+    setLogs((prev) =>
+      (prev ?? []).map((l) => (l.id === updated.id ? updated : { ...l, is_best: false })),
+    );
+  }
+
   if (beanMissing) {
     return (
       <div className="mt-8 border border-dashed border-neon-magenta/60 px-4 py-10 text-center">
@@ -128,7 +136,7 @@ export function BeanShotLog({ beanId }: { beanId: string }) {
             {String(logs.length).padStart(2, "0")}
           </span>
         </SectionLabel>
-        <ShotHistory logs={logs} />
+        <ShotHistory logs={logs} onBestToggled={handleBestToggled} />
       </section>
     </div>
   );
