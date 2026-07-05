@@ -3,17 +3,17 @@ import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-const REQUIRED_FIELDS = ["brand", "name", "roast_level", "origin"] as const;
+const REQUIRED_FIELDS = ["brand", "bean_type"] as const;
 
 /** Bean catalogue, newest first. */
 export async function GET() {
   const r = await db().query(
-    "select id, brand, name, roast_level, origin, created_at from beans order by created_at desc",
+    "select id, brand, bean_type, created_at from beans order by created_at desc",
   );
   return NextResponse.json({ beans: r.rows });
 }
 
-/** Add a bean. All four catalogue fields are required, non-blank strings. */
+/** Add a bean. Brand and bean type are required, non-blank strings. */
 export async function POST(req: Request) {
   let body: unknown;
   try {
@@ -34,9 +34,9 @@ export async function POST(req: Request) {
   }
 
   const r = await db().query(
-    `insert into beans (brand, name, roast_level, origin)
-     values ($1, $2, $3, $4)
-     returning id, brand, name, roast_level, origin, created_at`,
+    `insert into beans (brand, bean_type)
+     values ($1, $2)
+     returning id, brand, bean_type, created_at`,
     REQUIRED_FIELDS.map((f) => (record[f] as string).trim()),
   );
   return NextResponse.json({ bean: r.rows[0] }, { status: 201 });
