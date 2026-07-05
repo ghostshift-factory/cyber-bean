@@ -114,6 +114,30 @@ function ShotItem({
         </div>
 
         <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs uppercase text-muted">
+          <span aria-label={`dose ${log.dose_in_g} grams, yield ${log.yield_out_g} grams`}>
+            {log.dose_in_g}g ▸ {log.yield_out_g}g
+          </span>
+          <span
+            aria-label={`rated ${log.taste_rating} of 5`}
+            className="tracking-widest text-brand"
+          >
+            {"★".repeat(log.taste_rating)}
+            {"☆".repeat(5 - log.taste_rating)}
+          </span>
+          {log.taste_balance && (
+            <span
+              className={
+                log.taste_balance === "balanced"
+                  ? "text-neon-cyan"
+                  : "text-neon-magenta"
+              }
+            >
+              {log.taste_balance}
+            </span>
+          )}
+        </p>
+
+        <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs uppercase text-muted">
           <span className="text-neon-cyan">{log.basket_type}</span>
           <time dateTime={log.logged_at}>{formatShotDate(log.logged_at)}</time>
         </p>

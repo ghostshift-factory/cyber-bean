@@ -88,9 +88,13 @@ describe("ShotHistory", () => {
     }
   });
 
-  it("shows basket type, shot date, and notes when present", () => {
+  it("shows every log field — dose, yield, rating, balance, basket, date, and notes", () => {
     render(<ShotHistory logs={[LOGS[1]]} />);
 
+    expect(screen.getByText("18g ▸ 38g")).toBeTruthy();
+    expect(screen.getByText("★★★★★")).toBeTruthy();
+    // Exact match: the balance chip, not the notes line that mentions "balanced".
+    expect(screen.getByText("balanced")).toBeTruthy();
     expect(screen.getByText(/double/i)).toBeTruthy();
     expect(screen.getByText("balanced — repeat this")).toBeTruthy();
     const time = screen.getByRole("listitem").querySelector("time");
@@ -104,9 +108,19 @@ describe("ShotHistory", () => {
     render(<ShotHistory logs={[LOGS[0]]} />);
 
     expect(screen.getByText(/single/i)).toBeTruthy();
+    expect(screen.getByText("18g ▸ 36g")).toBeTruthy();
+    expect(screen.getByText("★★☆☆☆")).toBeTruthy();
+    expect(screen.getByText("too-sour")).toBeTruthy();
     // Unflagged entry: toggle offers to flag, nothing is pinned.
     expect(screen.getByRole("button", { name: /flag as best shot/i })).toBeTruthy();
     expect(document.querySelector(".best-shot")).toBeNull();
+  });
+
+  it("omits the taste-balance chip when balance is null", () => {
+    render(<ShotHistory logs={[LOGS[2]]} />);
+
+    expect(screen.getByText("★★★☆☆")).toBeTruthy();
+    expect(screen.queryByText(/too-sour|too-bitter|balanced/)).toBeNull();
   });
 
   it("shows a terse empty state when there are no logs", () => {
