@@ -21,9 +21,7 @@ const BEAN_ID = "8f14e45f-ea0a-4e64-9c08-4f2f5c9a1b2d";
 const BEAN: Bean = {
   id: BEAN_ID,
   brand: "Night City Roasters",
-  name: "Chrome Blend",
-  roast_level: "dark",
-  origin: "Brazil",
+  bean_type: "Chrome Blend",
   created_at: "2026-06-01T00:00:00.000Z",
 };
 

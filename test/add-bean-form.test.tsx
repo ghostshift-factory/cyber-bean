@@ -7,9 +7,7 @@ import type { Bean } from "@/lib/types";
 const CREATED: Bean = {
   id: "8f14e45f-ea0a-4e64-9c08-4f2f5c9a1b2d",
   brand: "Single O",
-  name: "Reservoir",
-  roast_level: "medium",
-  origin: "Ethiopia",
+  bean_type: "Reservoir",
   created_at: "2026-07-01T09:00:00.000Z",
 };
 
@@ -29,12 +27,8 @@ function fillValidForm() {
   fireEvent.change(screen.getByLabelText(/brand/i), {
     target: { value: "Single O" },
   });
-  fireEvent.change(screen.getByLabelText(/name/i), {
+  fireEvent.change(screen.getByLabelText(/bean type/i), {
     target: { value: "Reservoir" },
-  });
-  fireEvent.click(screen.getByRole("radio", { name: /medium/i }));
-  fireEvent.change(screen.getByLabelText(/origin/i), {
-    target: { value: "Ethiopia" },
   });
 }
 
@@ -43,19 +37,34 @@ function submit() {
 }
 
 describe("AddBeanForm", () => {
-  it("blocks submit and flags missing fields when the form is empty", () => {
+  it("blocks submit and flags brand and bean type when the form is empty", () => {
     render(<AddBeanForm onAdded={() => {}} />);
 
     submit();
 
-    expect(screen.getByRole("alert").textContent).toMatch(/required/i);
+    const alert = screen.getByRole("alert");
+    expect(alert.textContent).toMatch(/required/i);
+    expect(alert.textContent).toMatch(/brand/i);
+    expect(alert.textContent).toMatch(/bean type/i);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("blocks submit when only brand is filled", () => {
+    render(<AddBeanForm onAdded={() => {}} />);
+    fireEvent.change(screen.getByLabelText(/brand/i), {
+      target: { value: "Single O" },
+    });
+
+    submit();
+
+    expect(screen.getByRole("alert").textContent).toMatch(/bean type/i);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("treats whitespace-only input as missing", () => {
     render(<AddBeanForm onAdded={() => {}} />);
     fillValidForm();
-    fireEvent.change(screen.getByLabelText(/origin/i), {
+    fireEvent.change(screen.getByLabelText(/bean type/i), {
       target: { value: "   " },
     });
 
@@ -82,13 +91,12 @@ describe("AddBeanForm", () => {
     expect(init.method).toBe("POST");
     expect(JSON.parse(init.body)).toEqual({
       brand: "Single O",
-      name: "Reservoir",
-      roast_level: "medium",
-      origin: "Ethiopia",
+      bean_type: "Reservoir",
     });
 
-    // Text fields reset for the next bean.
+    // Fields reset for the next bean.
     expect((screen.getByLabelText(/brand/i) as HTMLInputElement).value).toBe("");
+    expect((screen.getByLabelText(/bean type/i) as HTMLInputElement).value).toBe("");
   });
 
   it("surfaces an API error instead of calling onAdded", async () => {

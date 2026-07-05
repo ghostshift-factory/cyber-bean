@@ -2,9 +2,7 @@
 export interface Bean {
   id: string;
   brand: string;
-  name: string;
-  roast_level: string;
-  origin: string;
+  bean_type: string;
   created_at: string;
 }
 

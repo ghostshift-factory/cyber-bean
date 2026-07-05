@@ -8,17 +8,13 @@ const BEANS: Bean[] = [
   {
     id: "8f14e45f-ea0a-4e64-9c08-4f2f5c9a1b2d",
     brand: "Single O",
-    name: "Reservoir",
-    roast_level: "medium",
-    origin: "Ethiopia",
+    bean_type: "Reservoir",
     created_at: "2026-07-01T09:00:00.000Z",
   },
   {
     id: "2c1743a3-91b8-4f2e-a1c0-6a9d3f7b4e5a",
     brand: "Proud Mary",
-    name: "Ghost Rider",
-    roast_level: "dark",
-    origin: "Colombia",
+    bean_type: "Ghost Rider",
     created_at: "2026-06-20T09:00:00.000Z",
   },
 ];
@@ -26,14 +22,12 @@ const BEANS: Bean[] = [
 afterEach(cleanup);
 
 describe("BeanList", () => {
-  it("renders every bean's brand, name, roast level and origin", () => {
+  it("renders every bean's brand and bean type", () => {
     render(<BeanList beans={BEANS} onDelete={() => {}} />);
 
     for (const bean of BEANS) {
       expect(screen.getByText(bean.brand)).toBeTruthy();
-      expect(screen.getByText(bean.name)).toBeTruthy();
-      expect(screen.getByText(new RegExp(bean.roast_level, "i"))).toBeTruthy();
-      expect(screen.getByText(bean.origin)).toBeTruthy();
+      expect(screen.getByText(bean.bean_type)).toBeTruthy();
     }
     expect(screen.getAllByRole("listitem")).toHaveLength(BEANS.length);
   });

@@ -114,14 +114,11 @@ export function BeanShotLog({ beanId }: { beanId: string }) {
           <span aria-hidden className="text-brand">
             [&nbsp;
           </span>
-          {bean.name}
+          {bean.bean_type}
           <span aria-hidden className="text-brand">
             &nbsp;]
           </span>
         </h1>
-        <p className="mt-2 font-mono text-xs uppercase text-muted">
-          {bean.roast_level} · {bean.origin}
-        </p>
       </header>
 
       <section aria-label="Log shot" className="space-y-4">
