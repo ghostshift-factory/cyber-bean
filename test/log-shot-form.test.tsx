@@ -33,13 +33,27 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function fillValidForm() {
-  fireEvent.change(screen.getByLabelText(/grind/i), { target: { value: "16" } });
-  fireEvent.change(screen.getByLabelText(/time/i), { target: { value: "31" } });
-  fireEvent.click(screen.getByRole("radio", { name: /double/i }));
-  fireEvent.change(screen.getByLabelText(/shot date/i), {
-    target: { value: "2026-07-04T07:30" },
-  });
+const FILL: Record<string, () => void> = {
+  grind_size: () =>
+    fireEvent.change(screen.getByLabelText(/grind/i), { target: { value: "16" } }),
+  dose_in_g: () =>
+    fireEvent.change(screen.getByLabelText(/dose/i), { target: { value: "18" } }),
+  yield_out_g: () =>
+    fireEvent.change(screen.getByLabelText(/yield/i), { target: { value: "38" } }),
+  extraction_seconds: () =>
+    fireEvent.change(screen.getByLabelText(/time/i), { target: { value: "31" } }),
+  basket_type: () => fireEvent.click(screen.getByRole("radio", { name: /double/i })),
+  taste_rating: () => fireEvent.click(screen.getByRole("radio", { name: /4 stars/i })),
+  logged_at: () =>
+    fireEvent.change(screen.getByLabelText(/shot date/i), {
+      target: { value: "2026-07-04T07:30" },
+    }),
+};
+
+function fillValidForm(except?: string) {
+  for (const [field, fill] of Object.entries(FILL)) {
+    if (field !== except) fill();
+  }
 }
 
 function submit() {
@@ -47,42 +61,19 @@ function submit() {
 }
 
 describe("LogShotForm", () => {
-  // The shot date is prefilled with "now", so each case clears its own field.
-  const CASES: Array<[string, () => void]> = [
-    [
-      "grind_size",
-      () =>
-        fireEvent.change(screen.getByLabelText(/grind/i), {
-          target: { value: "" },
-        }),
-    ],
-    [
-      "extraction_seconds",
-      () =>
-        fireEvent.change(screen.getByLabelText(/time/i), {
-          target: { value: "" },
-        }),
-    ],
-    [
-      "basket_type",
-      // Radios can't be unchecked once set; render fresh and simply never pick one.
-      () => {},
-    ],
-    [
-      "logged_at",
-      () =>
-        fireEvent.change(screen.getByLabelText(/shot date/i), {
-          target: { value: "" },
-        }),
-    ],
-  ];
-
-  for (const [field, clear] of CASES) {
+  // One case per required field. Skipping a text input leaves it blank;
+  // skipping a radio group (basket, rating) leaves nothing picked. The shot
+  // date is prefilled with "now", so that case clears it explicitly.
+  for (const field of Object.keys(FILL)) {
     it(`blocks submit when ${field} is missing`, () => {
       render(<LogShotForm beanId={BEAN_ID} onLogged={() => {}} />);
 
-      if (field !== "basket_type") fillValidForm();
-      clear();
+      fillValidForm(field);
+      if (field === "logged_at") {
+        fireEvent.change(screen.getByLabelText(/shot date/i), {
+          target: { value: "" },
+        });
+      }
       submit();
 
       expect(screen.getByRole("alert").textContent).toMatch(/required/i);
@@ -98,6 +89,7 @@ describe("LogShotForm", () => {
     render(<LogShotForm beanId={BEAN_ID} onLogged={onLogged} />);
 
     fillValidForm();
+    fireEvent.click(screen.getByRole("button", { name: "balanced" }));
     fireEvent.change(screen.getByLabelText(/notes/i), {
       target: { value: "balanced" },
     });
@@ -110,15 +102,19 @@ describe("LogShotForm", () => {
     expect(init.method).toBe("POST");
     expect(JSON.parse(init.body)).toEqual({
       grind_size: 16,
+      dose_in_g: 18,
+      yield_out_g: 38,
       extraction_seconds: 31,
       basket_type: "double",
+      taste_rating: 4,
+      taste_balance: "balanced",
       // datetime-local values are local time; the form ships them as ISO.
       logged_at: new Date("2026-07-04T07:30").toISOString(),
       notes: "balanced",
     });
   });
 
-  it("omits notes from the payload when blank", async () => {
+  it("omits notes and taste_balance from the payload when blank", async () => {
     fetchMock.mockResolvedValueOnce(
       new Response(JSON.stringify({ log: CREATED }), { status: 201 }),
     );
@@ -129,7 +125,9 @@ describe("LogShotForm", () => {
     submit();
 
     await waitFor(() => expect(onLogged).toHaveBeenCalled());
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).not.toHaveProperty("notes");
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body).not.toHaveProperty("notes");
+    expect(body).not.toHaveProperty("taste_balance");
   });
 
   it("surfaces an API error instead of calling onLogged", async () => {
