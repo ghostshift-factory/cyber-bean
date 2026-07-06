@@ -3,6 +3,7 @@ export interface Bean {
   id: string;
   brand: string;
   bean_type: string;
+  photo_url: string | null;
   created_at: string;
 }
 
