@@ -8,6 +8,7 @@ const CREATED: Bean = {
   id: "8f14e45f-ea0a-4e64-9c08-4f2f5c9a1b2d",
   brand: "Single O",
   bean_type: "Reservoir",
+  photo_url: null,
   created_at: "2026-07-01T09:00:00.000Z",
 };
 

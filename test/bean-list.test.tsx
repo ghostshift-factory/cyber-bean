@@ -9,12 +9,14 @@ const BEANS: Bean[] = [
     id: "8f14e45f-ea0a-4e64-9c08-4f2f5c9a1b2d",
     brand: "Single O",
     bean_type: "Reservoir",
+    photo_url: null,
     created_at: "2026-07-01T09:00:00.000Z",
   },
   {
     id: "2c1743a3-91b8-4f2e-a1c0-6a9d3f7b4e5a",
     brand: "Proud Mary",
     bean_type: "Ghost Rider",
+    photo_url: null,
     created_at: "2026-06-20T09:00:00.000Z",
   },
 ];
