@@ -59,4 +59,20 @@ describe("migration 0003_rebuild_beans_and_dial_in_logs", () => {
     expect(logs).toMatch(/\blogged_at timestamptz not null\b/);
     expect(logs).not.toMatch(/\blogged_at timestamptz not null default\b/);
   });
+
+  it("does not define photo_url (added later by 0004)", () => {
+    expect(beans).not.toMatch(/\bphoto_url\b/);
+  });
+});
+
+describe("migration 0004_add_photo_url_to_beans", () => {
+  const sql0004 = readFileSync(
+    join(__dirname, "..", "migrations", "0004_add_photo_url_to_beans.sql"),
+    "utf8",
+  ).toLowerCase();
+
+  it("adds a nullable photo_url varchar(500) column to beans", () => {
+    expect(sql0004).toMatch(/\balter table beans add column photo_url varchar\(500\)\s*;/);
+    expect(sql0004).not.toMatch(/\bphoto_url varchar\(500\) not null\b/);
+  });
 });
