@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { BeanDetailPhoto } from "@/components/BeanDetailPhoto";
 import { LogShotForm } from "@/components/LogShotForm";
 import { ShotHistory } from "@/components/ShotHistory";
 import type { Bean, DialInLog } from "@/lib/types";
@@ -107,6 +108,9 @@ export function BeanShotLog({ beanId }: { beanId: string }) {
   return (
     <div className="mt-2 space-y-10">
       <header>
+        <div className="mb-5">
+          <BeanDetailPhoto bean={bean} />
+        </div>
         <p className="font-glitch text-[11px] uppercase tracking-[0.25em] text-neon-cyan">
           {bean.brand}
         </p>
