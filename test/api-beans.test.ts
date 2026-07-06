@@ -11,6 +11,7 @@ const BEAN = {
   id: "8f14e45f-ea0a-4e64-9c08-4f2f5c9a1b2d",
   brand: "Single O",
   bean_type: "Reservoir",
+  photo_url: null,
   created_at: "2026-07-01T09:00:00.000Z",
 };
 
@@ -54,7 +55,69 @@ describe("POST /api/beans", () => {
     expect(await res.json()).toEqual({ bean: BEAN });
     const [sql, params] = query.mock.calls[0];
     expect(sql).toMatch(/insert into beans/i);
-    expect(params).toEqual(["Single O", "Reservoir"]);
+    expect(params).toEqual(["Single O", "Reservoir", null]);
+  });
+
+  it("stores photo_url when supplied", async () => {
+    const withPhoto = { ...BEAN, photo_url: "/uploads/reservoir.webp" };
+    query.mockResolvedValueOnce({ rows: [withPhoto], rowCount: 1 });
+
+    const res = await POST(
+      postRequest({
+        brand: "Single O",
+        bean_type: "Reservoir",
+        photo_url: "/uploads/reservoir.webp",
+      }),
+    );
+
+    expect(res.status).toBe(201);
+    expect(await res.json()).toEqual({ bean: withPhoto });
+    const [sql, params] = query.mock.calls[0];
+    expect(sql).toMatch(/insert into beans/i);
+    expect(sql).toMatch(/photo_url/i);
+    expect(params).toEqual(["Single O", "Reservoir", "/uploads/reservoir.webp"]);
+  });
+
+  it("stores null when photo_url is omitted", async () => {
+    query.mockResolvedValueOnce({ rows: [BEAN], rowCount: 1 });
+
+    await POST(postRequest({ brand: "Single O", bean_type: "Reservoir" }));
+
+    expect(query.mock.calls[0][1]).toEqual(["Single O", "Reservoir", null]);
+  });
+
+  it("stores null when photo_url is a blank string", async () => {
+    query.mockResolvedValueOnce({ rows: [BEAN], rowCount: 1 });
+
+    await POST(
+      postRequest({ brand: "Single O", bean_type: "Reservoir", photo_url: "  " }),
+    );
+
+    expect(query.mock.calls[0][1]).toEqual(["Single O", "Reservoir", null]);
+  });
+
+  it("rejects a non-string photo_url with 400", async () => {
+    const res = await POST(
+      postRequest({ brand: "Single O", bean_type: "Reservoir", photo_url: 42 }),
+    );
+
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toContain("photo_url");
+    expect(query).not.toHaveBeenCalled();
+  });
+
+  it("rejects a photo_url longer than 500 chars with 400", async () => {
+    const res = await POST(
+      postRequest({
+        brand: "Single O",
+        bean_type: "Reservoir",
+        photo_url: `/uploads/${"x".repeat(500)}.png`,
+      }),
+    );
+
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toContain("photo_url");
+    expect(query).not.toHaveBeenCalled();
   });
 
   it.each(["brand", "bean_type"])(
